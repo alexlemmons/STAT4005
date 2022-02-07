@@ -1,0 +1,94 @@
+---
+title: "Quiz 2 In Class"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this quiz.” - Alex Emmons
+
+```{r}
+library(tidyverse)
+library(readxl)
+df <- read_excel("data/slu_graduates_17_21.xlsx")
+
+## fixes error in the data
+df <- df %>% mutate(across(everything(),
+                           .fns = ~replace(., . ==  "STATS" , "STAT")))
+
+df_long <- df %>% pivot_longer(3:8, names_to = "type", values_to = "discipline")
+
+df_major <- df_long %>% 
+  filter(type == "major1" | type == "major2" | type == "major3")
+```
+
+1.
+```{r}
+df_longer <- df %>% pivot_longer(3:5, names_to = "type", values_to = "discipline") %>%
+  select(7)
+
+df_longest <- df_longer %>%
+  group_by(discipline) %>%
+  mutate(majortotal = n()) %>%
+  distinct(discipline, .keep_all = TRUE) %>%
+  ungroup() %>%
+  mutate(discipline = fct_reorder(.f = discipline, .x = majortotal)) %>%
+  arrange(desc(majortotal)) %>%
+  slice(-1) %>%
+  slice(1:10)
+ 
+
+ggplot(data = df_longest, aes(x = discipline, y = majortotal)) +
+  geom_point() + 
+  geom_segment(aes(x = discipline, xend = discipline, y = 0, yend = majortotal)) +
+  coord_flip() +
+  labs(y = "Total Number of Majors in Past 5 Years")
+```
+
+2.
+```{r}
+df_a <- df %>% filter(major1 == "STAT" | major2 == "STAT" | major3 == "STAT") %>%
+  pivot_longer(c(3, 4, 5, 6, 7, 8),
+               values_to = "discipline",
+               names_to = "type") %>%
+  filter(type == "minor1" | type == "minor2" | type == "minor3") %>%
+  filter(discipline != "STAT" & !is.na(discipline))
+df_stat <- df %>% pivot_longer(c(3, 4, 5, 6, 7, 8),
+               values_to = "discipline",
+               names_to = "type") %>%
+  filter(discipline == "STAT")
+df_join <- semi_join(df_a, df_stat, by = "adm_id")
+
+df_b <- df_join %>%
+group_by(discipline) %>%
+  summarise(nstudent = n()) %>% 
+  filter(!is.na(discipline))
+
+df_c <- df_b %>%
+  mutate(discipline = fct_reorder(.f = discipline, .x = nstudent))
+
+ggplot(data = df_c, aes(x = discipline,
+                               y = nstudent)) +
+  geom_col() +
+  coord_flip()
+```
+
+Extra Credit
+```{r}
+df %>%
+  filter(!is.na(major1)) %>%
+  summarise(major1 = n())
+
+df %>%
+  filter(!is.na(major2)) %>%
+  summarise(major2 = n())
+
+df %>%
+  filter(!is.na(major3)) %>%
+  summarise(major3 = n())
+
+(2729 + 951 + 9) / 2729
+```
+Average of 1.351777 mojors per student
