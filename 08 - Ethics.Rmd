@@ -1,0 +1,22 @@
+---
+title: "08 - Ethics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+8.1.2
+1. The National Review climate example is unethical because of the scale on the y-axis being such a wide range. This allowed fo the detemination to be made that humans have had very little effect in global tempurature.
+
+2. The principles of "Create reproducible and extensible work" and "Respect and invite fair criticism while promoting the identification and open discussion of errors, risks, and unintended consequences of our work" go hand in hand. These two principles are improtant to hold people accountable and create better data.
+
+8.2
+1. Example two humanizes the victims better by giving the names of the victims.
+
+2. Show the intermingling of racial groups.
+
+3. We must redce harm on subjects as much as possible while still presenting the data in an effective manner. He have to take a more human approach to algorhythmic production.
+
+4. This chart uses emotion by showing the "stolen years" variable that isnt even a real variable with any basis in fact.
