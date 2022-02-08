@@ -1,0 +1,23 @@
+---
+title: "Quiz 3 Take Home"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own, and I have followed all rules for collaboration.” - Alex Emmons
+
+1. I don't know if I would call it "unethical" but I would definitely consider it grossly negligent.They had a duty to show all of the data but did not. The blame definitely falls on the engineers.
+
+2. https://twitter.com/WhiteHouse/status/1486709480351952901/photo/1
+
+This graph is unethical because the y-axis scale goes up by one until 5.5. I don't know whether this was done intentionally or not but the location of the error is suspect. Either way it may mislead the reader who may think that the 2021 numbers are bigger than they really are.
+
+
+3. commit- A localized snapshot of the entire project. 
+
+push- To send the commited files onto github
+
+pull- To make an edit on a previously pushed file.
