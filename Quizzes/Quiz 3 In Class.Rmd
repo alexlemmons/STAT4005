@@ -1,0 +1,20 @@
+---
+title: "Quiz 3 In Class"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this quiz.” - Alex Emmons
+
+
+
+1. You have to pull the current README file.
+
+2. Two advantages of using git and github include easy sharability of uploaded code and it can work as a place to store and organize your projects.
+
+3. Recognizing and mitigating bias is the most difficult principle in my opinion. Biases can be so ingrained in us that it can be hard to take a step outside of youself and strip your emotion away from what you are doing.
+
+4. The US gun death visualization was a particularly good example of utilizing emotion to make your data more impactful. My argument against using emotion stems from that fact that when you utilize emotion, you are generally trying to make the reader feel a certain way. This perhaps limits the ability of the reader to come to their own conclusions of what the data is saying.
