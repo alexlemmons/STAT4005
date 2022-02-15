@@ -1,0 +1,31 @@
+---
+title: "Quiz 4 Take Home"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own, and I have followed all rules for collaboration.” - Alex Emmons
+
+```{r}
+library(maps)
+library(leaflet)
+library(tidyverse)
+us.cities
+
+us.cities <- us.cities %>%
+  filter(capital == 2)
+
+content <- us.cities %>%
+  mutate(popup = paste0('Capital City: ', us.cities$name, '   Population: ',
+                        us.cities$pop))
+cap_map <- leaflet(us.cities) %>%
+  setView(lng = -98.583, lat = 39.833, zoom = 4) %>% 
+  addTiles() %>% 
+  addProviderTiles(providers$Wikimedia) %>% 
+  addMarkers(lng = us.cities$long, lat = us.cities$lat,
+             popup = content$popup)
+cap_map
+```
