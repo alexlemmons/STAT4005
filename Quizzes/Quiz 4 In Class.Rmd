@@ -1,0 +1,31 @@
+---
+title: "Quiz 4 In Class"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this quiz.”- Alex Emmons
+1.
+```{r}
+library(tidyverse)
+library(here)
+alcohol_df <- read_csv(here("data/alcohol.csv"))
+
+map <- map_data("world", region = ".", exact = FALSE)
+
+map2 <- map %>%
+  mutate(country = region)
+
+map2 <- full_join(alcohol_df, map2, by = "country")
+
+ggplot(data = map2, aes(x = long, y = lat, group = group)) +
+  geom_polygon(colour = "black", aes(fill = beer_servings)) +
+  coord_map(projection = "mercator", xlim=c(-180,180)) +
+   scale_fill_viridis_b()
+```
+
+2.
+What if you were trying to look at the ratio of wine to beer drinking in each country? You could put beer_servings on the x-axis and wine_servings on the y-axis and have a dot plot with each country plotted. 
