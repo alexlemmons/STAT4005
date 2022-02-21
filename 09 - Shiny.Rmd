@@ -1,0 +1,17 @@
+---
+title: "09 - Shiny"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.
+You can manipulate the sample size, intercept, slope, and standard deviation of residuals.
+
+2.
+The outputs are a graph of OLS best line fit and a table with data on the slope and intercept.
+
+3.
+I looked at the Nutritiona Calculator app. In this app, you add data on ingreadients of foods you eat and the app outputs three graphs of macronutrients, minerals and vitamins as % daily value. One cool thing that I found is that nutrient and calorie amounts over 100% are highlighted at the top.
