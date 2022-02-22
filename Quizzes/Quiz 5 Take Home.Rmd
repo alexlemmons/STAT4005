@@ -1,0 +1,66 @@
+---
+title: "Quiz 5 Take Home"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own, and I have followed all rules for collaboration.” - Alex Emmons
+
+1.
+```{r}
+library(tidyverse)
+stat_df <- read_csv("data/stat113_survey.csv")
+
+
+stat_facebook <- stat_df %>%
+  select(time_both, Facebook) %>%
+  slice(1777:5322)
+  
+stat_facebook[is.na(stat_facebook)] <- 0
+
+stat_friends <- stat_facebook %>%
+  group_by(time_both) %>%
+  summarise(friends = mean(Facebook)) %>%
+  separate(time_both, into = c("semester", "year"), sep = 1) %>%
+  arrange(year, desc(semester)) %>%
+  unite(col = "time_both", c(semester, year)) %>%
+  mutate(time_both = fct_inorder(time_both))
+
+ggplot(stat_friends, aes(time_both, friends)) +
+  geom_point() +
+  geom_segment(aes(x = time_both, xend = time_both, y = 0, yend = friends)) +
+  labs(x = "Semester", y = "Average Number of Facebook Friends")
+```
+
+2.
+```{r}
+hasfacebook <- stat_facebook %>%
+  mutate(Has_Facebook = if_else(Facebook > 0,
+                                            true = "Yes",
+                                            false = "No")) %>%
+  select(time_both, Has_Facebook) %>%
+  group_by(time_both, Has_Facebook) %>%
+  summarise(ncount = n()) %>%
+  ungroup() %>%
+  group_by(time_both) %>%
+  mutate(ntotal = sum(ncount)) %>%
+  ungroup() %>%
+  filter(Has_Facebook == "Yes") %>%
+  mutate(prop = ncount / ntotal,
+         se = sqrt(prop * (1 - prop) / ntotal),
+         l_se = prop - se,
+         u_se = prop + se)
+
+hasfacebook2 <- hasfacebook %>% 
+  separate(time_both, into = c("semester", "year"), sep = 1) %>%
+  arrange(year, desc(semester)) %>%
+  unite(col = "time_both", c(semester, year)) %>%
+  mutate(time_both = fct_inorder(time_both))
+ggplot(hasfacebook2, aes(time_both, prop)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = l_se, ymax = u_se)) +
+  labs(x = "Semester", y = "Proportion of Students with Facebook")
+```
