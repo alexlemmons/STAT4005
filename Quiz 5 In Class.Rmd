@@ -1,0 +1,35 @@
+---
+title: "Quiz 5 In Class"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.
+The first one because the second one does not display useful underlying data such as the variation in beak size among the individuals in a species.
+
+2.
+```{r}
+library(tidyverse)
+library(here)
+hpi_df <- read_csv(here("data/hpi-tidy.csv"))
+
+ggplot(data = hpi_df %>% group_by(Region) %>%
+         summarise(avg_life = mean(LifeExpectancy, na.rm = TRUE)),
+       aes(x = Region, y = avg_life)) +
+  geom_col() +
+  coord_flip() +
+  labs(y = "Average Life Expectancy")
+```
+
+3.
+```{r}
+ggplot(data = hpi_df %>% group_by(Region),
+       aes(x = Region, y = LifeExpectancy)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(y = "Average Life Expectancy")
+```
+
