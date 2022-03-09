@@ -1,0 +1,64 @@
+---
+title: "Mapping Tutorial"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+When we want to see patterns across space, we use maps as a data visualization approach. We'll make maps in R that are either created in base R or a package, as well as maps that we'll have to specify with a shapefile. Finally, we'll show you how to use the leaflet package to make your map more interactive.
+
+We need a mechanism to instruct R how to draw the boundaries of a given area in order to produce a map of that area. Many data scientists map certain areas frequently, such as France. Many of these regions have pre-"drawn" maps included in the maps package.
+
+```{r}
+## install.packages("maps")
+library(maps)
+library(tidyverse)
+
+france_df <- ggplot2::map_data("france")
+```
+
+The `map_data()` function creates a data set including many variables to help draw the map:
+
+* `long` and `lat`, latitude and longitude
+* `group`, one number for each polygon R must draw
+* `order`, the order that R will draw the line segments within a group
+
+We need a new `geom`: `geom_polygon()` and a `group` `aes()` to inform R how to draw the map's boundaries:
+
+```{r}
+ggplot(data = france_df,
+            mapping = aes(x = long, y = lat,
+                          group = group)) +
+  geom_polygon() 
+```
+
+Looking at this map, there are many undesirable aspects. The gridlines are unneeded, the aspect ratio seems off, and the provinces are all filled in black. To fix this, we will add `theme_void()` to remove the gridlines, change the map projection to `albers`, and changed the fill to `white`.
+
+```{r}
+ggplot(data = france_df,
+            mapping = aes(x = long, y = lat,
+                          group = group)) +
+  geom_polygon(colour = "black", fill = "white") +
+  coord_map(projection = "albers", lat0 = 40, lat1 = 52) +
+  theme_void()
+```
+
+Now, lets add a variable to color our base map by so we can compare the variable among the different regions. To do that we will join the `demographics` and `index` data sets to our `france_df` data set to add a `population` variable which we will out into the `fill` of the `geom_polygon()`.
+
+```{r}
+demo <- read.csv("data/demographics.csv")
+index <- read.csv("data/index.csv")
+
+france_data <- full_join(demo, index)
+
+
+france_full <- left_join(france_df, france_data, by = c("region" = "subregion2_name"))
+
+ggplot(data = france_full, aes(x = long, y = lat, group = group)) +
+  geom_polygon(colour = "black", aes(fill = population)) +
+  coord_map(projection = "albers", lat0 = 40, lat1 = 52) +
+  theme_void() +
+  scale_fill_viridis_b()
+```

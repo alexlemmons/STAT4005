@@ -1,0 +1,92 @@
+---
+title: "Shiny Tutorial"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We'll cover `Shiny`, a `R` tool for creating interactive web apps, in this section. The `shiny` package, unlike other `R` packages, has a more particular syntax that can take some time to understand. The concept of reactivity, in particular, introduces certain coding and debugging issues that we haven't seen yet.
+
+### Let's Make an App
+
+Let's make a `shiny` app using the `mlb2016` data set that will produce a bar plot of all `Salaries` for a given `POS`. First we will make a static version of the graph for one `POS`.
+
+```{r}
+library(tidyverse)
+mlb <- read.csv("data/mlb2016.csv")
+
+sp <- mlb %>%
+  filter(POS == "SP")
+ggplot(sp, aes(Salary)) +
+  geom_bar()
+```
+
+Next lets try to make this inot a `shiny` app. To begin we'll use a basic `shiny` app template.
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  
+)
+
+server <- function(input, output, session) {
+  
+}
+
+shinyApp(ui, server)
+```
+
+First, we'll focus on the ui section by adding a `selectInput()` function to allow for the `POS` to be selected from a drop down menu. Then we'll add a `plotOutput` function as well.
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  selectizeInput(inputId = "pos", 
+                 label = "Choose a Position",
+                 choices = mlb$POS),
+  plotOutput(outputId = "bar")
+)
+
+server <- function(input, output, session) {
+  
+}
+
+shinyApp(ui, server)
+```
+
+Next we'll focus on the server section where we need to add a `renderPlot()` function to connect to out `plotOutput()` in ui and produce our bar plot in the app.
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  selectizeInput(inputId = "pos", 
+                 label = "Choose a Position",
+                 choices = mlb$POS),
+  plotOutput(outputId = "bar")
+)
+
+server <- function(input, output, session) {
+  pos_df <- reactive({
+    mlb %>%
+    filter(POS == input$pos)
+  })
+  
+  output$bar <- renderPlot({
+    ggplot(pos_df(), aes(Salary)) + 
+      geom_bar()
+  })
+}
+
+shinyApp(ui, server)
+```
+
+
+### Reactivity
+
+Reactive programming is used in `Shiny` to define server logic. The main idea behind reactive programming is to define a graph of relationships so that when an input changes, all connected outputs are updated automatically. This simplifies the app's flow significantly, although it takes some time to figure out how everything goes together.
+
+An example of some of this reactivity can be seen in the app we just made. The position filter at the beginning of the server function reacts and changes based on the position selected in the `selectizeInput()` drop down menu in the ui.

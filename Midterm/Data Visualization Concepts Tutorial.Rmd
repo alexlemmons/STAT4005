@@ -1,0 +1,140 @@
+---
+title: "Data Visualization Concepts"
+output: html_document
+---
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this exam.” - Alex Emmons
+
+## Grammar of Graphics
+
+The proper use of the grammar of grapics can allow one to describe a graphic in a very detailed way.
+
+The "grammar of graphics" we will be using come from the `ggplot` package. This package features seven parameters: 
+
+* `<DATA>`: the data set
+* `<MAPPINGS>`: an aesthetic mapping
+* `<GEOM_FUNCTION>`: a geometrical object
+* `<STAT>`: a statistical transformation
+* `<POSITION>`: a position adjustment
+* `<FACET_FUNCTION>`: subplots
+* `<COORDINATE_FUNCTION>`: a coordinate system
+
+### `<DATA>`, `<MAPPINGS>`, and `<GEOM_FUNCTION>`
+
+These are the most widely utilized functions in `ggplot`.
+
+`<DATA>` refers to the data set and is a required parameter.
+
+
+`<MAPPINGS>` refers to the parameters specified the the aesthetics (`aes()`) function that map plot characteristics to variables in your data set. Common mappings include:
+
+* `x` position
+* `y` position
+* `color`
+* `fill`
+* `shape`
+* `group`
+* `size`
+
+`<GEOM_FUNCTION>` is used to represent the data with a geometric function. Common examples include:
+
+* For a single quantitative variable: `geom_histogram()` and `geom_freqpoly()` 
+* For a single categorical variable: `geom_bar()` and `geom_col()` 
+* For two quantitative variables: `geom_point()`, `geom_line()`, and `geom_smooth()` 
+* For a categorical and a quantitative variable: `geom_boxplot()` and `geom_violin()`
+* For two categorical variables: `geom_bar()`, `geom_tile()`, and `geom_bin_2d()`
+
+Using the `pokemon_full.csv` data set lets make some `geom` examples using two quantatative variables (`HP` and `Attack`) and two categorical variables (`Generation` and `Type`).
+
+```{r}
+library(tidyverse)
+pokemon <- read.csv("data/pokemon_full.csv")
+
+## single quantitative frequency plot
+ggplot(data = pokemon, aes(x = HP)) +
+  geom_freqpoly() 
+```
+
+```{r}
+## single categorical barplot
+ggplot(data = pokemon, aes(x = Generation)) +
+  geom_bar()
+```
+
+```{r}
+## two quantitative scatterplot
+ggplot(data = pokemon, aes(x = Attack, y = HP)) +
+  geom_point() +
+  geom_smooth()
+```
+
+### `<FACET>`
+
+The `<FACET>` parameter is used often through the `facet_wrap()` function. This function allows one to create subplots for subsets of the data.
+
+An example of this would be to make faceted histograms of `HP` by `Generation`:
+```{r}
+ggplot(data = pokemon, aes(x = HP)) +
+  geom_histogram(colour = "black", fill = "white") +
+  facet_wrap(~ Generation)
+```
+
+
+### `<STAT>`, `<POSITION>`, `<COORDINATE_FUNCTION>`
+
+These three parameters are not used as commonly in `ggplot` due to very helpful defaults.
+Lets look at one example of each.
+
+#### `<STAT>`
+
+`<STAT>` is the default transformation of a given `geom`. The default `<STAT>` for `geom_bar()` is count where behind the scenes the number of observations for each given level of x is plotted.
+
+```{r}
+ggplot(data = pokemon, aes(x = Generation)) +
+  geom_bar(stat = "count") ## stat = "count" is not needed because it's the default.
+```
+
+#### `<POSITION>`
+
+A common way in which `<POSITION>` is changed is to create a side-by-side barplot instead of a stacked barplot. The default position in `geom_bar()` is "stacked" for an observations that occupy the same `x`.
+
+```{r}
+ggplot(data = pokemon, aes(x = Generation, fill = Type)) +
+  geom_bar(position = "stack") + ## don't need "stacked" because it's default
+  scale_fill_viridis_d()
+```
+
+
+#### `<COORDINATE_FUNCTION>`
+
+The majority of plots employ the conventional Cartesian `<COORDINATE FUNCTION>`. This is rarely updated, but `coord_quickmap()` will be used to correct the aspect ratio of spatial maps. `coord_polar()` is another `<COORDINATE_FUNCTION()>`.
+
+```{r}
+ggplot(data = pokemon, aes(x = Type)) +
+  geom_bar() +
+  coord_polar()
+```
+
+A more useful function is `coord_flip()` that just flips the x and y axes.
+
+```{r}
+ggplot(data = pokemon, aes(x = Generation)) + 
+  geom_bar() +
+  coord_flip() 
+```
+
+## Why Look At Data?
+
+While visualizations are helpful and very useful, only looking at the visual can lead to a situation where the visual might "mask" information that looking at all of the data will show. A good example of this phenomenon is Anscombe's quartet where we see four trendlines that are exactly the same but the data shown by the dots tell a completely different story from each other.
+
+Visualizations are still important however because data can be very messy and generalizing it can still be useful. It is always important to be diligent in how we look at visualizations to make sure we arent being mislead of missing a story told by the data.
+
+## Channels for Representing Data
+
+Different visual marks such as points, lines, and shapes can represent different variables. The issue is finding the right combination. The channel or mapping we select must be capable of reflecting the type of data we have. If we want to distinguish between unordered categories, for example, using a continuous gradient to depict them will be ineffective. If our variable is continuous, representing it as a series of shapes will be ineffective.
+
+Even if we find a visual element that can work, we still want to know how effective it is. For example if we have ordered data and want the viewer to be able to compare it quickly, we should encode it as a location on a common scale. In the absence of a scale, encoding integers as lengths works, although not as well. Comparisons will be even less accurate if they are coded as areas.
+
+Perceptual details of how we implement our channel are important too. As an example, if we have a measure with four categories sorted from lowest to highest, we may rightly opt to express it using a sequential gradient. However, if we choose the incorrect color sequence for the gradient, the data will be difficult to read or deliberately deceptive. Similarly, if we choose the wrong collection of colors for an unordered categorical variable, the outcome may be not just unpleasant to look at, but actively deceptive.
+
+It is important to decern the fact that choosing a channel does not marry you to a particular graph, although it may narrow your options.

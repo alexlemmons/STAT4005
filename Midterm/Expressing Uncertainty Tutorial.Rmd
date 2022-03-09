@@ -1,0 +1,35 @@
+---
+title: "Expressing Uncertainty Tutorial"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In most visualizations, expressing variability is crucial. Using a handful of examples, we'll look at why graphs that convey variability are generally better than graphs that don't.
+
+Bar plots are particularly bad at showing variability. Looking at the `higham_fitness_clean` data set a bar graph of the average `steps` for each `weekday` would look like... 
+
+```{r}
+library(tidyverse)
+
+higham_df <- read_csv("data/higham_fitness_clean.csv")
+
+higham_steps <- higham_df %>% 
+  group_by(weekday) %>%
+  summarise(avg_steps = mean(steps))
+
+ggplot(data = higham_steps, aes(x = weekday, y = avg_steps)) +
+  geom_col() +
+  coord_flip()
+```
+
+This bar plot doesn't show variability because it does not give any indication of the range of observations that make up each average. A box plot is an example of a plot showing more variability...
+
+```{r}
+ggplot(data = higham_df, aes(x = weekday, y = steps)) +
+  geom_boxplot()
+```
+
+This box plot shows the range of the `step` observations for each `weekday` instead of one average and thus shows more variability. Largely, any attempt at showing more variability in a visualization will allow for more accurate interpretations.  
