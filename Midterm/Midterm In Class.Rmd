@@ -1,0 +1,157 @@
+---
+title: "Midterm In Class"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this exam.” - Alex Emmons
+
+1.
+a.
+geom (geom_bar), stat = "identity", coordinate function (coord_flip)
+
+b.
+We would want to do this because then the types would be more easily comparable to each other and thus more easily readable.
+
+c.
+It is ok to remove zero from a point plot as opposed to a bar plot because visually and intuitively one sees the end of the bar at the axis as zero so if it is not zero it can be confusing. Generally bar plots are used to compare amounts of things, if the scale doesn't start at zero it can be hard to interpret.
+
+3.
+I learned that visualizations can be manipulated to present a certain narative. One should look carefully into visualizations.
+
+4.
+a.
+```{r}
+library(maps)
+library(tidyverse)
+library(here)
+election_df <- read_csv(here("data/2020_county_pres.csv")) %>%
+  group_by(state_name) %>%
+  summarise(total_gop = sum(votes_gop),
+            total_dem = sum(votes_dem)) %>%
+  mutate(percent_gop = 100 * total_gop / (total_gop + total_dem)) %>%
+  mutate(state_name = str_to_lower(state_name))
+
+us_df <- ggplot2::map_data("state")
+
+full_df <- full_join(us_df, election_df, by = c("region" = "state_name"))
+
+ggplot(data = full_df, aes(x = long, y = lat, group = group)) +
+  geom_polygon(colour = "black", aes(fill = percent_gop)) +
+  coord_map(projection = "albers", lat0 = 40, lat1 = 52) +
+  theme_void() +
+  scale_fill_viridis_b()
+```
+
+b.
+The data set is much larger because it includes all data necessary to draw each polygon including, latitude and longitude as well as region, group, and order.
+
+5.
+```{r}
+library(shiny)
+library(tidyverse)
+library(ggrepel)
+library(here)
+alcohol_df <- read_csv(here("data/alcohol.csv"))
+
+onecountry_df <- alcohol_df %>% filter(country == "Australia")
+
+ggplot(alcohol_df, aes(x = beer_servings, y = wine_servings)) +
+  geom_point() +
+  geom_label_repel(data = onecountry_df, aes(label = country)) +
+  geom_point(data = onecountry_df, size = 3, shape = 1)
+
+var_choices <- names(alcohol_df)[2:4]
+
+library(shiny)
+
+ui <- fluidPage(
+  selectizeInput(inputId = "country", 
+                 label = "Choose a Country",
+                 choices = alcohol_df$country),
+  radioButtons("varchoice", label = "Choose a Statistic",
+                 choices = var_choices),
+  plotOutput(outputId = "scat"),
+  plotOutput("histgraph")
+  
+)
+
+server <- function(input, output, session) {
+  country_df <- reactive({
+    alcohol_df %>% 
+      filter(country == input$country)
+  })
+  
+  output$scat <- renderPlot({
+    ggplot(alcohol_df, aes(x = beer_servings, y = wine_servings)) +
+      geom_point() +
+      geom_label_repel(data = country_df(), aes(label = country)) +
+      geom_point(data = country_df(), size = 3, shape = 1)
+  })
+  
+   hist_plot <- reactive({
+    ggplot(alcohol_df, aes(x = .data[[input$varchoice]])) +
+      geom_histogram(colour = "black", fill = "white", bins = input$binnumber) +
+      theme_grey(base_size = 22)
+   })
+   
+   output$histgraph <- renderPlot({
+    hist_plot()
+   })
+}
+
+shinyApp(ui, server)
+```
+
+7.
+```{r}
+library(tidyverse)
+library(here)
+wta_df <- read_csv(here("data/wta_matches_2019.csv"))
+wta_long <- wta_df %>% pivot_longer(c(winner_name, loser_name),
+                                    names_to = "won_or_lost",
+                                    values_to = "player") %>%
+  select(won_or_lost, player, everything())
+
+match_df <- wta_long %>%
+  group_by(player) %>% count() %>%
+  filter(n > 20)
+
+ace_df <- wta_long %>%
+  group_by(player) %>%
+  summarise(w_ace = mean(w_ace, na.rm = TRUE),
+            l_ace = mean(l_ace, na.rm = TRUE)) %>%
+  mutate(meanace = w_ace + l_ace / 2)
+  
+
+major_tennis <- semi_join(ace_df, match_df, by = c("player" = "player"))
+
+major_tennis <- major_tennis %>%
+  arrange(desc(meanace)) %>%
+  slice(1:10)
+
+ggplot(data = major_tennis, aes(x = player, y = meanace)) +
+  geom_point() +
+  geom_segment(aes(x = player, xend = player, y = 0, yend = meanace)) +
+  coord_flip() 
+```
+
+8.
+a.
+This lollipop chart is not the best because it does not show any variability in the number of aces instead the average is only shown which can be influenced heavily by outliers.
+
+b.
+```{r}
+library(tibble)
+set.seed(03092022)
+toy_df <- tibble(group = c("a", "a", "a", "b", "b", "b", "c", "c",
+                           "c", "c", "d", "d"),
+       response = rnorm(12, 4, 3))
+
+ggplot(data = toy_df, aes(x = group, y = response,)) +
+  geom_boxplot() +
+  coord_flip()
+```
